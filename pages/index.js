@@ -48,20 +48,26 @@ const menuCards = [
 ]
 
 export default function Home() {
+  const [mounted, setMounted] = useState(false)
   const [stats, setStats] = useState({ prCount: 0, jadwalCount: 0, pencapaianCount: 0 })
   const [greeting, setGreeting] = useState('Selamat Datang')
   const [currentDate, setCurrentDate] = useState('')
 
   useEffect(() => {
-    // Load stats from localStorage
-    const prs = JSON.parse(localStorage.getItem('studytrack_pr') || '[]')
-    const jadwal = JSON.parse(localStorage.getItem('studytrack_jadwal') || '[]')
-    const pencapaian = JSON.parse(localStorage.getItem('studytrack_pencapaian') || '[]')
-    setStats({
-      prCount: prs.filter(p => p.status !== 'selesai').length,
-      jadwalCount: jadwal.length,
-      pencapaianCount: pencapaian.length,
-    })
+    setMounted(true)
+    // Load stats from localStorage safely
+    try {
+      const prs = JSON.parse(localStorage.getItem('studytrack_pr') || '[]')
+      const jadwal = JSON.parse(localStorage.getItem('studytrack_jadwal') || '[]')
+      const pencapaian = JSON.parse(localStorage.getItem('studytrack_pencapaian') || '[]')
+      setStats({
+        prCount: Array.isArray(prs) ? prs.filter(p => p.status !== 'selesai').length : 0,
+        jadwalCount: Array.isArray(jadwal) ? jadwal.length : 0,
+        pencapaianCount: Array.isArray(pencapaian) ? pencapaian.length : 0,
+      })
+    } catch (e) {
+      console.error("Error loading stats:", e)
+    }
 
     // Greeting
     const h = new Date().getHours()
@@ -74,6 +80,8 @@ export default function Home() {
     const d = new Date()
     setCurrentDate(d.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }))
   }, [])
+
+  if (!mounted) return null
 
   return (
     <Layout title="Beranda">

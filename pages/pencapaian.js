@@ -11,6 +11,7 @@ const defaultForm = {
 }
 
 export default function Pencapaian() {
+  const [mounted, setMounted] = useState(false)
   const [items, setItems] = useState([])
   const [showModal, setShowModal] = useState(false)
   const [form, setForm] = useState(defaultForm)
@@ -20,9 +21,17 @@ export default function Pencapaian() {
   const [sortBy, setSortBy] = useState('newest')
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('studytrack_pencapaian') || '[]')
-    setItems(saved)
+    setMounted(true)
+    try {
+      const saved = JSON.parse(localStorage.getItem('studytrack_pencapaian') || '[]')
+      setItems(Array.isArray(saved) ? saved : [])
+    } catch (e) {
+      console.error("Error loading pencapaian items:", e)
+      setItems([])
+    }
   }, [])
+
+  if (!mounted) return null
 
   const save = (data) => {
     localStorage.setItem('studytrack_pencapaian', JSON.stringify(data))

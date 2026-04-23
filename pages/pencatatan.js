@@ -26,6 +26,7 @@ const defaultForm = {
 }
 
 export default function Pencatatan() {
+  const [mounted, setMounted] = useState(false)
   const [items, setItems] = useState([])
   const [showModal, setShowModal] = useState(false)
   const [form, setForm] = useState(defaultForm)
@@ -38,9 +39,17 @@ export default function Pencatatan() {
   const fileRef = useRef()
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('studytrack_pr') || '[]')
-    setItems(saved)
+    setMounted(true)
+    try {
+      const saved = JSON.parse(localStorage.getItem('studytrack_pr') || '[]')
+      setItems(Array.isArray(saved) ? saved : [])
+    } catch (e) {
+      console.error("Error loading PR items:", e)
+      setItems([])
+    }
   }, [])
+
+  if (!mounted) return null
 
   const save = (data) => {
     localStorage.setItem('studytrack_pr', JSON.stringify(data))

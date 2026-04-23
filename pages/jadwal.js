@@ -33,11 +33,12 @@ const defaultForm = {
 }
 
 export default function JadwalBelajar() {
+  const [mounted, setMounted] = useState(false)
   const [items, setItems] = useState([])
   const [showModal, setShowModal] = useState(false)
   const [form, setForm] = useState(defaultForm)
   const [editId, setEditId] = useState(null)
-  const [activeDay, setActiveDay] = useState(getCurrentDayId())
+  const [activeDay, setActiveDay] = useState(1)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
   const [viewMode, setViewMode] = useState('week') // 'week' | 'day'
 
@@ -47,9 +48,18 @@ export default function JadwalBelajar() {
   }
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('studytrack_jadwal') || '[]')
-    setItems(saved)
+    setMounted(true)
+    setActiveDay(getCurrentDayId())
+    try {
+      const saved = JSON.parse(localStorage.getItem('studytrack_jadwal') || '[]')
+      setItems(Array.isArray(saved) ? saved : [])
+    } catch (e) {
+      console.error("Error loading jadwal items:", e)
+      setItems([])
+    }
   }, [])
+
+  if (!mounted) return null
 
   const save = (data) => {
     localStorage.setItem('studytrack_jadwal', JSON.stringify(data))
